@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Flota</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Panel de Control: Conductores y Autos</h1>
+
+    <div class="card">
+        <button onclick="fetchData('/conductores')">Listar Conductores</button>
+        <button onclick="fetchData('/automoviles')">Listar Autos</button>
+        <button onclick="fetchData('/solitos')">Ver "Solitos"</button>
+        <input type="number" id="edadLimit" placeholder="Edad máxima">
+        <button onclick="fetchSinAuto()">Sin Auto</button>
+    </div>
+
+    <div id="resultado" class="card">
+        <h3>Resultados:</h3>
+        <div id="tablaContenido">Selecciona una opción...</div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+
+        async function fetchData(endpoint) {
+            const res = await fetch(API_URL + endpoint);
+            const data = await res.json();
+            renderTable(data);
+        }
+
+        async function fetchSinAuto() {
+            const edad = document.getElementById('edadLimit').value;
+            fetchData(`/conductoressinauto?edad=${edad}`);
+        }
+
+        function renderTable(data) {
+            if (data.length === 0) {
+                document.getElementById('tablaContenido').innerHTML = "No hay datos encontrados.";
+                return;
+            }
+            let html = `<table><tr>${Object.keys(data[0]).map(k => `<th>${k}</th>`).join('')}</tr>`;
+            data.forEach(row => {
+                html += `<tr>${Object.values(row).map(v => `<td>${v || 'N/A'}</td>`).join('')}</tr>`;
+            });
+            html += '</table>';
+            document.getElementById('tablaContenido').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
